@@ -120,6 +120,8 @@ class MultiPlotDataObject:
             self.xlim = [self.xlim[0] + 1, self.xlim[1] + 1]
             self.ax.set_xlim(self.xlim)
 
+        self.ax.set_ylim()
+
     def update_graph(self, xdata: list) -> None:
         for i, e in enumerate(self.lines):
             e.set_ydata(self.value[i])
