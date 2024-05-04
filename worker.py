@@ -38,22 +38,32 @@ def log_data(time: list[int], data: list[PlottableDataObject]) -> None:
 def main() -> None:
     r.initial_del()
 
-    fig, (temp_axes, pres_axes, alti_axes, humi_axes, part_axes) = plt.subplots(nrows=5, ncols=1, sharex=True,
-                                                                                sharey=False, figsize=(10, 6))
+    fig = plt.figure(figsize=(14, 8))
+    gs = fig.add_gridspec(4, 4, hspace=0.2)
+
+    # (temp_axes, pres_axes, humi_axes, part_axes), (alti_axes) = gs.subplots(sharex=False, sharey='row')
+    temp_axes = fig.add_subplot(gs[0, :3])
+    pres_axes = fig.add_subplot(gs[1, :3])
+    humi_axes = fig.add_subplot(gs[2, :3])
+    part_axes = fig.add_subplot(gs[3, :3])
+    alti_axes = fig.add_subplot(gs[:4, 3])
+
     plt.ion()
     plt.xlim(view_section)
 
     temp = MultiPlotDataObject(name="Temperature", keys=[4, 7], initial_values=[0, 0], sources=["Pippo", "Pluto"],
-                               ax=temp_axes, ylim=[0, 20], colors=["red", "orange"])
-    pres = PlottableDataObject(name="Pressure", key=5, initial_value=0, ax=pres_axes, ylim=[0, 20], color="blue")
-    alti = MultiPlotDataObject(name="Altitude", keys=[2, 6], initial_values=[0, 0], sources=["Pippo", "Pluto"],
-                               ax=alti_axes, ylim=[0, 20], colors=["blueviolet", "magenta"])
-    humi = PlottableDataObject(name="Humidity", key=8, initial_value=0, ax=humi_axes, ylim=[0, 20], color="aqua")
+                               ax=temp_axes, ylim=[0, 20], xlim=view_section, colors=["red", "orange"])
+    pres = PlottableDataObject(name="Pressure", key=5, initial_value=0, ax=pres_axes, ylim=[0, 20], xlim=view_section,
+                               color="blue")
+    """alti = MultiPlotDataObject(name="Altitude", keys=[2, 6], initial_values=[0, 0], sources=["Pippo", "Pluto"],
+                               ax=alti_axes, ylim=[0, 20], xlim=view_section, colors=["blueviolet", "magenta"])"""
+    humi = PlottableDataObject(name="Humidity", key=8, initial_value=0, ax=humi_axes, ylim=[0, 20], xlim=view_section,
+                               color="aqua")
     part = MultiPlotDataObject(name="Particulate", keys=[9, 10, 11], initial_values=[0, 0, 0],
                                sources=["Pippo", "Pluto", "Topolino"], ax=part_axes, ylim=[0, 20],
-                               colors=["coral", "yellow", "lime"])
+                               xlim=view_section, colors=["coral", "yellow", "lime"])
 
-    data: list[PlottableDataObject] = [temp, pres, alti, humi, part]
+    data: list[PlottableDataObject] = [temp, pres, humi, part]
     time: list = [0]
 
     while True:

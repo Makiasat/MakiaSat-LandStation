@@ -1,6 +1,5 @@
 import serial
 import time
-from redis import Redis
 from loguru import logger
 from csv import writer
 from csv import Error as CSV_Error
@@ -9,7 +8,6 @@ from datetime import datetime
 
 from utils.redis_utils import RedisClient
 
-from pickle import dumps
 
 CSV_FILE_PATH = 'data/data.csv'
 SERIAL_PORT = '/dev/cu.usbmodem1101'
