@@ -1,4 +1,5 @@
 # MakiaSat Land Station Software 💻
+This software makes it possible to save and display data, transmitted by CanSat, received from an antenna via the serial port in real time.
 
 ## Requirements
 
@@ -14,3 +15,23 @@ pip install -r requirements.txt
 ## Documentation
 > [!CAUTION]
 > Sorry, documentation is planned ...
+
+## How does it works ?
+
+The dispatcher handles receiving the data its saving and adding it to a queue hosted on a redis database that is iterated by a worker that parses the data in order to display it in real time in an animated graph
+
+```mermaid
+graph
+S(Serila Port)
+A([Dispatcher])
+B([Worker])
+c[(Redis Queue)]
+D[data.csv]
+
+B --> P[Real time plot dashboard]
+S --> A
+A <--> c
+B <--> c
+A --> D
+
+```
