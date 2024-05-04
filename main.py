@@ -1,21 +1,17 @@
 import serial
 import time
-from redis import Redis
 from loguru import logger
 from csv import writer
 from csv import Error as CSV_Error
-from os import path, rename
+from os import path, remove
 from datetime import datetime
 
 from utils.redis_utils import RedisClient
+from utils.log_utils import setup_logger
+from config import CSV_FILE_PATH, SERIAL_PORT, BAUD_RATE, REDIS_HOST, REDIS_PORT, REDIS_KEY
 
-from pickle import dumps
-
-CSV_FILE_PATH = 'data/data.csv'
-SERIAL_PORT = '/dev/cu.usbmodem1101'
-BAUD_RATE = 9600
-
-r = RedisClient(host="localhost", port=6379, key="cansat")
+setup_logger(logger, "dispatcher-logs/{time}.log")
+r = RedisClient(host=REDIS_HOST, port=REDIS_PORT, key=REDIS_KEY)
 
 
 def connect() -> serial:
@@ -37,8 +33,24 @@ def create_csv() -> None:
     logger.info("Creating " + CSV_FILE_PATH)
     try:
         if path.exists(CSV_FILE_PATH):
+            remove(CSV_FILE_PATH)
+            logger.info("Removed " + CSV_FILE_PATH)
+        """
+        if path.exists(CSV_FILE_PATH):
             rename(CSV_FILE_PATH, f"{datetime.timestamp(datetime.now())}-{CSV_FILE_PATH}")
             logger.info("Removed " + CSV_FILE_PATH)
+        """
+
+        """if path.exists(CSV_FILE_PATH):
+            prefix = 0
+            existing_path = CSV_FILE_PATH
+            while True:
+                if path.exists(f"{prefix}-{CSV_FILE_PATH}"):
+                    existing_path = f"{prefix}-{CSV_FILE_PATH}"
+                    prefix += 1
+                else:
+                    rename(existing_path, f"{prefix}-{CSV_FILE_PATH}")
+                    logger.success(f"Existing file renamed: {prefix}-{CSV_FILE_PATH}")"""
 
         with open(CSV_FILE_PATH, 'w', encoding='UTF8') as f:
             wr = writer(f)
@@ -75,14 +87,20 @@ def add_to_csv(row: list) -> None:
         logger.error(e)
 
 
+@logger.catch
 def main() -> None:
     create_csv()
 
     ser = None
+
+    iteration = 0
     while True:
 
         if not ser:
             ser = connect()
+
+        logger.info(f"Iteration number: {iteration}")
+        iteration += 1
 
         try:
             response = ser.readline().decode("utf-8").strip()
@@ -90,9 +108,13 @@ def main() -> None:
             if response:
                 data = response.split(",")
 
-                logger.info(f"Received --> {data}")
+                logger.info(f"Received -> \n{data}")
                 add_to_csv(data)
-                r.push_list(data)
+                try:
+                    r.push_list(data)
+                    logger.success(f"Pushed data to Redis")
+                except Exception as e:
+                    logger.error(e)
 
         except OSError as e:
             ser = None
