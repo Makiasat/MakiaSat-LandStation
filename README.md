@@ -12,6 +12,11 @@ You can install all the python libraries you need using the command:
 pip install -r requirements.txt
 ```
 
+## Usage
+> [!CAUTION]
+> Sorry, documentation is planned ...
+
+
 ## Documentation
 > [!CAUTION]
 > Sorry, documentation is planned ...
