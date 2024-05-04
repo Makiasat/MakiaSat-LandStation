@@ -4,10 +4,11 @@ from utils.data_utils import DataObject, PlottableDataObject, MultiPlotDataObjec
 from utils.redis_utils import RedisClient
 import numpy as np
 from loguru import logger
+from config import VIEW_SECTION
 
 start = tm.time()
 r = RedisClient(host='localhost', port=6379, key="cansat")
-view_section: list[int] = [0, 50]
+view_section: list[int] = VIEW_SECTION
 
 
 def update_data(d: list[DataObject], t: list) -> None:
@@ -21,11 +22,6 @@ def update_data(d: list[DataObject], t: list) -> None:
             e.update_data(None)
 
     t.append(t[-1] + 1)
-
-    if len(t) > 50:
-        global view_section
-        view_section = [view_section[0] + 1, view_section[1] + 1]
-        plt.xlim(view_section)
 
 
 def log_data(time: list[int], data: list[PlottableDataObject]) -> None:

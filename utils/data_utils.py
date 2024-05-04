@@ -21,21 +21,31 @@ class DataObject:
 
 
 class PlottableDataObject(DataObject):
-    def __init__(self, ax: plt.axes, ylim: list[int], xlim: list[int], name: str, key: int, initial_value: float = None,
-                 color: str = None):
+    def __init__(self,
+                 ax: plt.axes,
+                 name: str,
+                 key: int,
+                 xlim: list[int],
+                 ylim: list[int] = None,
+                 initial_value: float = None,
+                 color: str = None
+                 ):
         super().__init__(name, key, initial_value)
-        self.ax: plt.axes = ax
-        self.ylim: list[int] = ylim
-        self.xlim: list[int] = xlim
-        self.color: str = color
 
-        self.ax.set_ylim(self.ylim)
+        self.ax: plt.axes = ax
+
+        if ylim:
+            self.ylim: list[int] = ylim
+            self.ax.set_ylim(self.ylim)
+
+        self.xlim: list[int] = xlim
         self.ax.set_xlim(self.xlim)
+
         self.ax.set_ylabel(self.name)
         self.line, = self.ax.plot(self.value)
 
-        if self.color:
-            self.line.set_color(self.color)
+        if color:
+            self.line.set_color(color)
 
     def update_graph(self, xdata: list) -> None:
         self.line.set_ydata(self.value)
@@ -47,11 +57,19 @@ class PlottableDataObject(DataObject):
 
 
 class MultiPlotDataObject:
-    def __init__(self, ax: plt.axes, ylim: list[int], xlim: list[int], name: str, keys: list[int], sources: list[str] = None,
+    def __init__(self,
+                 ax: plt.axes,
+                 name: str,
+                 keys: list[int],
+                 xlim: list[int],
+                 ylim: list[int] = None,
+                 sources: list[str] = None,
                  initial_values: list[float] = None,
                  colors: list[str] = None):
+
         self.name: str = name
         self.keys: list[int] = keys
+
         self.value: list[list[float]] = []
         if initial_values:
             for e in initial_values:
@@ -61,11 +79,13 @@ class MultiPlotDataObject:
                 self.value.append([])
 
         self.ax: plt.axes = ax
-        self.ylim: list[int] = ylim
-        self.xlim: list[int] = xlim
+        if ylim:
+            self.ylim: list[int] = ylim
+            self.ax.set_ylim(self.ylim)
 
-        self.ax.set_ylim(self.ylim)
+        self.xlim: list[int] = xlim
         self.ax.set_xlim(self.xlim)
+
         self.ax.set_ylabel(self.name)
 
         self.lines: list = []
