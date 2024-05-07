@@ -1,3 +1,5 @@
+import math
+
 from matplotlib import pyplot as plt
 
 
@@ -69,8 +71,9 @@ class MultiPlotDataObject:
 
         self.name: str = name
         self.keys: list[int] = keys
-
         self.value: list[list[float]] = []
+        self.update_count: int = 0
+
         if initial_values:
             for e in initial_values:
                 self.value.append([e])
@@ -92,7 +95,9 @@ class MultiPlotDataObject:
         if sources:
             for i, e in enumerate(self.value):
                 self.lines.append(self.ax.plot(e, label=sources[i])[0])
-                # TODO: Label not working -> https://matplotlib.org/stable/users/explain/axes/axes_intro.html#axes-labelling-and-annotation
+
+            self.ax.legend()
+
         else:
             for e in self.value:
                 self.lines.append(self.ax.plot(e)[0])
@@ -108,10 +113,29 @@ class MultiPlotDataObject:
     def __int__(self) -> list[int]:
         return self.keys
 
+    def update_y_limits(self):
+        self.update_count += 1
+
+        if self.update_count % 5 == 0:
+            flat = []
+
+            for serie in self.value:
+                flat.extend(serie)
+
+            min_val = min(flat)
+            max_val = max(flat)
+            # delta = math.ceil(max_val * 1.05)
+            delta = 1
+
+            self.ylim: list[int] = [math.floor(min_val) - delta, math.ceil(max_val) + delta]
+            self.ax.set_ylim(self.ylim)
+
     def update_data(self, new_data: list[float] = None) -> None:
         if new_data:
             for i, e in enumerate(self.value):
                 e.append(new_data[self.keys[i]])
+
+            self.update_y_limits()
         else:
             for e in self.value:
                 e.append(0)

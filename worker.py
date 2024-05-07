@@ -7,7 +7,6 @@ from loguru import logger
 from utils.data_utils import DataObject, PlottableDataObject, MultiPlotDataObject
 from utils.redis_utils import RedisClient
 from utils.log_utils import setup_logger
-from utils.maps_utils import maps_url_composer
 from config import VIEW_SECTION, REDIS_HOST, REDIS_PORT, REDIS_KEY
 
 start = tm.time()
@@ -53,17 +52,54 @@ def main() -> None:
     plt.ion()
     plt.xlim(view_section)
 
-    temp = MultiPlotDataObject(name="Temperature", keys=[4, 7], initial_values=[0, 0], sources=["Pippo", "Pluto"],
-                               ax=temp_axes, ylim=[0, 20], xlim=view_section, colors=["red", "orange"])
-    pres = PlottableDataObject(name="Pressure", key=5, initial_value=0, ax=pres_axes, ylim=[0, 20], xlim=view_section,
-                               color="blue")
-    alti = MultiPlotDataObject(name="Altitude", keys=[2, 6], initial_values=[0, 0], sources=["Pippo", "Pluto"],
-                               ax=alti_axes, ylim=[0, 20], xlim=view_section, colors=["blueviolet", "magenta"])
-    humi = PlottableDataObject(name="Humidity", key=8, initial_value=0, ax=humi_axes, ylim=[0, 20], xlim=view_section,
-                               color="aqua")
-    part = MultiPlotDataObject(name="Particulate", keys=[9, 10, 11], initial_values=[0, 0, 0],
-                               sources=["Pippo", "Pluto", "Topolino"], ax=part_axes, ylim=[0, 20],
-                               xlim=view_section, colors=["coral", "yellow", "lime"])
+    temp = MultiPlotDataObject(
+        ax=temp_axes,
+        colors=["red", "orange"],
+        initial_values=[0, 0],
+        keys=[4, 7],
+        name="Temperature",
+        sources=["Pippo", "Pluto"],
+        xlim=view_section,
+        ylim=[0, 20]
+    )
+    pres = PlottableDataObject(
+        ax=pres_axes,
+        color="blue",
+        initial_value=0,
+        key=5,
+        name="Pressure",
+        xlim=view_section,
+        ylim=[0, 20]
+    )
+    alti = MultiPlotDataObject(
+        ax=alti_axes,
+        colors=["blueviolet", "magenta"],
+        initial_values=[0, 0],
+        keys=[2, 6],
+        name="Altitude",
+        sources=["Pippo", "Pluto"],
+        xlim=view_section,
+        ylim=[0, 20]
+    )
+    humi = PlottableDataObject(
+        ax=humi_axes,
+        color="aqua",
+        initial_value=0,
+        key=8,
+        name="Humidity",
+        xlim=view_section,
+        ylim=[0, 20]
+    )
+    part = MultiPlotDataObject(
+        ax=part_axes,
+        colors=["coral", "yellow", "lime"],
+        initial_values=[0, 0, 0],
+        keys=[9, 10, 11],
+        name="Particulate",
+        sources=["Pippo", "Pluto", "Topolino"],
+        xlim=view_section,
+        ylim=[0, 20]
+    )
 
     data: list[PlottableDataObject] = [temp, pres, humi, part, alti]
     time: list = [0]
@@ -74,8 +110,6 @@ def main() -> None:
 
         for e in data:
             e.update_graph(xdata=time)
-
-        # TODO: logger.info(f"Last position: {maps_url_composer()}")
 
         plt.draw()
         plt.pause(1)
