@@ -1,11 +1,13 @@
 import time as tm
 import matplotlib.pyplot as plt
 import numpy as np
+
 from loguru import logger
 
 from utils.data_utils import DataObject, PlottableDataObject, MultiPlotDataObject
 from utils.redis_utils import RedisClient
 from utils.log_utils import setup_logger
+from utils.maps_utils import maps_url_composer
 from config import VIEW_SECTION, REDIS_HOST, REDIS_PORT, REDIS_KEY
 
 start = tm.time()
@@ -72,6 +74,8 @@ def main() -> None:
 
         for e in data:
             e.update_graph(xdata=time)
+
+        # TODO: logger.info(f"Last position: {maps_url_composer()}")
 
         plt.draw()
         plt.pause(1)
