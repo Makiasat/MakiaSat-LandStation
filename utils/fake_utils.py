@@ -38,7 +38,7 @@ def get_fake_random_serial() -> str:
     t.append(f"{random_float_delta(27.81, 1.5):.6f}")
 
     # 6 - Pressure
-    t.append(f"{random_float_delta(100270.00, 1.0):.6f}")
+    t.append(f"{random_float_delta(100270.00, 5000.0):.6f}")
 
     # 7 - Altitude
     t.append(f"{random_float_delta(88.21, 3.0):.6f}")

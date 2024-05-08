@@ -14,7 +14,8 @@ from utils.redis_utils import RedisClient
 setup_logger(logger, "dispatcher-logs/{time}.log")
 r = RedisClient(host=REDIS_HOST, port=REDIS_PORT, key=REDIS_KEY)
 
-validate_pattern = r"([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s(\d{2}:\d{2}:\d{2})\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)"
+# validate_pattern = r"([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s(\d{2}:\d{2}:\d{2})\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)"
+validate_pattern = r"([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s(\d{2}:\d{2}:\d{2})\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)"
 
 
 def connect() -> serial:
@@ -44,8 +45,8 @@ def create_csv() -> None:
             wr = writer(f)
 
             wr.writerow(
-                ['Latitudine', 'Longitudine', 'Altitudine', 'Tempo', 'Temperatura', 'Pressione', 'Altitudine',
-                 'Temperatura', 'Umidita', 'Pm1', 'Pm2.5', 'Pm10', ])
+                ['Iteration', 'Latitude', 'Longitude', 'Elevation', 'Time', 'Temperature', 'Pressure', 'Elevation',
+                 'Temperature', 'Humidity', 'Pm1', 'Pm2.5', 'Pm10'])
             logger.success("Created " + CSV_FILE_PATH)
 
     except CSV_Error as e:
@@ -60,7 +61,8 @@ def create_csv() -> None:
         logger.error(e)
 
 
-def add_to_csv(row: list) -> None:
+def add_to_csv(row: list, iteration: int) -> None:
+    row.insert(0, iteration)
     try:
         with open(CSV_FILE_PATH, 'a', encoding='UTF8', newline='') as f:
             wr = writer(f)
@@ -86,6 +88,8 @@ def normalize_serial(data: str) -> list:
     for i in t:
         if ":" in i:
             k.append(i)
+        elif "-" in i:
+            k.append(0)
         else:
             k.append(float(i))
     return k
@@ -100,8 +104,8 @@ def main() -> None:
     iteration = 0
     while True:
 
-        # if not ser:
-        #     ser = connect()
+        """if not ser:
+            ser = connect()"""
 
         logger.info(f"Iteration number: {iteration}")
         iteration += 1
@@ -109,13 +113,14 @@ def main() -> None:
         try:
             # response = ser.readline().decode("utf-8").strip()
             response = get_fake_random_serial()
+            logger.log("SERIAL", response)
 
             if response and validate_serial(response):
 
                 data = normalize_serial(response)
 
                 logger.info(f"Received -> \n{data}")
-                add_to_csv(data)
+                add_to_csv(data, iteration)
                 try:
                     r.push_list(data)
                     logger.success(f"Pushed data to Redis")
