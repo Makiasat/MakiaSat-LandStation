@@ -13,9 +13,19 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-> [!CAUTION]
-> Sorry, documentation is planned ...
 
+First of all, it is neessary that redis is running
+```
+redis-server
+```
+To start the data collection program, simply run
+```
+python main.py
+```
+Open another shell to plot the data
+```
+python worker.py
+```
 
 ## Documentation
 > [!CAUTION]
