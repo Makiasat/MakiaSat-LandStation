@@ -4,8 +4,7 @@ import time
 from loguru import logger
 from csv import writer
 from csv import Error as CSV_Error
-from os import path, remove
-from datetime import datetime
+from os import path, rename
 
 from config import CSV_FILE_PATH, SERIAL_PORT, BAUD_RATE, REDIS_HOST, REDIS_PORT, REDIS_KEY
 from utils.fake_utils import get_fake_random_serial
@@ -14,7 +13,6 @@ from utils.redis_utils import RedisClient
 
 setup_logger(logger, "dispatcher-logs/{time}.log")
 r = RedisClient(host=REDIS_HOST, port=REDIS_PORT, key=REDIS_KEY)
-
 
 validate_pattern = r"([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s(\d{2}:\d{2}:\d{2})\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)"
 
@@ -38,24 +36,9 @@ def create_csv() -> None:
     logger.info("Creating " + CSV_FILE_PATH)
     try:
         if path.exists(CSV_FILE_PATH):
-            remove(CSV_FILE_PATH)
-            logger.info("Removed " + CSV_FILE_PATH)
-        """
-        if path.exists(CSV_FILE_PATH):
-            rename(CSV_FILE_PATH, f"{datetime.timestamp(datetime.now())}-{CSV_FILE_PATH}")
-            logger.info("Removed " + CSV_FILE_PATH)
-        """
-
-        """if path.exists(CSV_FILE_PATH):
-            prefix = 0
-            existing_path = CSV_FILE_PATH
-            while True:
-                if path.exists(f"{prefix}-{CSV_FILE_PATH}"):
-                    existing_path = f"{prefix}-{CSV_FILE_PATH}"
-                    prefix += 1
-                else:
-                    rename(existing_path, f"{prefix}-{CSV_FILE_PATH}")
-                    logger.success(f"Existing file renamed: {prefix}-{CSV_FILE_PATH}")"""
+            new_name: str = f"{CSV_FILE_PATH.split('/')[0]}/{time.time()}-{CSV_FILE_PATH.split('/')[1]}"
+            rename(CSV_FILE_PATH, new_name)
+            logger.info(f"CSV file Renamed to: {new_name}")
 
         with open(CSV_FILE_PATH, 'w', encoding='UTF8') as f:
             wr = writer(f)
@@ -106,6 +89,7 @@ def normalize_serial(data: str) -> list:
         else:
             k.append(float(i))
     return k
+
 
 @logger.catch
 def main() -> None:
