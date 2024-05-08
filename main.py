@@ -1,17 +1,20 @@
+import re
 import serial
 import time
 from loguru import logger
 from csv import writer
 from csv import Error as CSV_Error
 from os import path, rename
-from datetime import datetime
 
-from utils.redis_utils import RedisClient
-from utils.log_utils import setup_logger
 from config import CSV_FILE_PATH, SERIAL_PORT, BAUD_RATE, REDIS_HOST, REDIS_PORT, REDIS_KEY
+from utils.fake_utils import get_fake_random_serial
+from utils.log_utils import setup_logger
+from utils.redis_utils import RedisClient
 
 setup_logger(logger, "dispatcher-logs/{time}.log")
 r = RedisClient(host=REDIS_HOST, port=REDIS_PORT, key=REDIS_KEY)
+
+validate_pattern = r"([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s(\d{2}:\d{2}:\d{2})\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)"
 
 
 def connect() -> serial:
@@ -72,6 +75,22 @@ def add_to_csv(row: list) -> None:
         logger.error(e)
 
 
+def validate_serial(data: str) -> bool:
+    match = re.search(validate_pattern, data)
+    return True if match else False
+
+
+def normalize_serial(data: str) -> list:
+    t = data.split(",")
+    k = []
+    for i in t:
+        if ":" in i:
+            k.append(i)
+        else:
+            k.append(float(i))
+    return k
+
+
 @logger.catch
 def main() -> None:
     create_csv()
@@ -81,17 +100,19 @@ def main() -> None:
     iteration = 0
     while True:
 
-        if not ser:
-            ser = connect()
+        # if not ser:
+        #     ser = connect()
 
         logger.info(f"Iteration number: {iteration}")
         iteration += 1
 
         try:
-            response = ser.readline().decode("utf-8").strip()
+            # response = ser.readline().decode("utf-8").strip()
+            response = get_fake_random_serial()
 
-            if response:
-                data = response.split(",")
+            if response and validate_serial(response):
+
+                data = normalize_serial(response)
 
                 logger.info(f"Received -> \n{data}")
                 add_to_csv(data)
