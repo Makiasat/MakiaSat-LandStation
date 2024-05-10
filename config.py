@@ -10,7 +10,7 @@
 
 # Dispatcher ---------------------------------------------------------------------- #
 CSV_FILE_PATH: str = 'data/data.csv'
-SERIAL_PORT: str = '/dev/cu.usbmodem1101'
+SERIAL_PORT: str = '/dev/cu.usbserial-110'
 BAUD_RATE: int = 9600
 # --------------------------------------------------------------------------------- #
 
