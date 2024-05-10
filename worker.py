@@ -124,7 +124,8 @@ def main() -> None:
         name="GPS",
         sources=["X", "Y"],
         xlim=view_section,
-        ylim=[0, 20]
+        ylim=[0, 20],
+        colors=["red"]
     )
 
     data: list[MultiPlotDataObject] = [temp, pres, humi, part, alti, gps]

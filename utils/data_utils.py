@@ -191,10 +191,8 @@ class GpsMPDO(MultiPlotDataObject):
 
         self.line = None
 
-        """if colors:
+        if colors:
             self.colors: list[str] = colors
-            for i, e in enumerate(self.colors):
-                self.lines[i].set_color(e)"""
 
     def update_data(self, new_data: list[float] = None) -> None:
         if new_data:
@@ -204,6 +202,7 @@ class GpsMPDO(MultiPlotDataObject):
     def update_graph(self, xdata: list) -> None:
         if not self.line:
             self.line, = self.ax.plot(self.value[0])
+            self.line.set_color(self.colors[0])
 
         self.line.set_xdata(self.value[0])
         self.line.set_ydata(self.value[1])

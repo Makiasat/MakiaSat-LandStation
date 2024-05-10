@@ -15,7 +15,8 @@ setup_logger(logger, "dispatcher-logs/{time}.log")
 r = RedisClient(host=REDIS_HOST, port=REDIS_PORT, key=REDIS_KEY)
 
 # validate_pattern = r"([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s(\d{2}:\d{2}:\d{2})\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)"
-validate_pattern = r"([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s(\d{2}:\d{2}:\d{2})\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)"
+# validate_pattern = r"([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,(\s)?(\d{2}:\d{2}:\d{2})\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)\,\s([+-]?(\d+)?(\.?\d+)?)"
+validate_pattern = r"(?i)((NaN)?([+-]?(\d+)?(\.?\d+)?)\,\s?){3}(\d{2}:\d{2}:\d{2})\,\s?((NaN)?([+-]?(\d+)?(\.?\d+)?)\,\s?){7}((NaN)?[+-]?(\d+)?(\.?\d+)?)"
 
 
 def connect() -> serial:
@@ -79,6 +80,7 @@ def add_to_csv(row: list, iteration: int) -> None:
 
 def validate_serial(data: str) -> bool:
     match = re.search(validate_pattern, data)
+    logger.error("Invalid serial output")
     return True if match else False
 
 
@@ -89,6 +91,10 @@ def normalize_serial(data: str) -> list:
         if ":" in i:
             k.append(i)
         elif "-" in i:
+            k.append(0)
+        elif "Nan" in i:
+            k.append(0)
+        elif "nan" in i:
             k.append(0)
         else:
             k.append(float(i))
@@ -104,15 +110,15 @@ def main() -> None:
     iteration = 0
     while True:
 
-        """if not ser:
-            ser = connect()"""
+        if not ser:
+            ser = connect()
 
         logger.info(f"Iteration number: {iteration}")
         iteration += 1
 
         try:
-            # response = ser.readline().decode("utf-8").strip()
-            response = get_fake_random_serial()
+            response = ser.readline().decode("utf-8").strip()
+            # response = get_fake_random_serial()
             logger.log("SERIAL", response)
 
             if response and validate_serial(response):
