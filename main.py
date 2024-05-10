@@ -11,7 +11,7 @@ from utils.fake_utils import get_fake_random_serial
 from utils.log_utils import setup_logger
 from utils.redis_utils import RedisClient
 
-setup_logger(logger, "dispatcher-logs/{time}.log")
+setup_logger(logger, "dispatcher-logs/{time}.log", serial=True)
 r = RedisClient(host=REDIS_HOST, port=REDIS_PORT, key=REDIS_KEY)
 
 # validate_pattern = r"([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s(\d{2}:\d{2}:\d{2})\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)\,\s([+-]?\d+(\.?\d+)?)"

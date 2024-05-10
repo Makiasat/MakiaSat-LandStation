@@ -50,7 +50,6 @@ def main() -> None:
     )
     gs = fig.add_gridspec(4, 9, hspace=0.2, wspace=0.55)
 
-    # (temp_axes, pres_axes, humi_axes, part_axes), (alti_axes) = gs.subplots(sharex=False, sharey='row')
     temp_axes = fig.add_subplot(gs[0, :6])
     pres_axes = fig.add_subplot(gs[1, :6])
     humi_axes = fig.add_subplot(gs[2, :6])
@@ -139,7 +138,7 @@ def main() -> None:
             e.update_graph(xdata=time)
 
         plt.draw()
-        plt.pause(0.2)
+        plt.pause(0.1)
 
 
 if __name__ == '__main__':

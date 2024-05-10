@@ -4,7 +4,7 @@ import sys
 FORMAT = '<cyan>{time:DD-MM-YYYY - HH-MM-SS}</cyan> | <level>{level}</level> | <magenta>{module}</magenta>:<magenta>{function}</magenta>:<magenta>{line}</magenta> - <level>{message}</level>'
 
 
-def setup_logger(log: logger, path: str):
+def setup_logger(log: logger, path: str, serial: bool = False):
     log.remove()
     log.add(
         sys.stdout,
@@ -15,9 +15,10 @@ def setup_logger(log: logger, path: str):
         format=FORMAT
     )
     new_level = logger.level("SERIAL", no=38, color="<yellow>", icon="🐍")
-    log.add(
-        "serial_logger/{time}-serial.log",
-        level="SERIAL",
-        format="<cyan>{time:DD-MM-YYYY - HH-MM-SS}</cyan> | {message}"
-    )
+    if serial:
+        log.add(
+            "serial_logger/{time}-serial.log",
+            level="SERIAL",
+            format="<cyan>{time:DD-MM-YYYY - HH-MM-SS}</cyan> | {message}"
+        )
 
