@@ -28,7 +28,48 @@ python worker.py
 ```
 
 ## Documentation
-> [!CAUTION]
+
+### Redis
+RedisClient is an object designed to establish a connection with a redis server and that provides methods for adding or removing items from a queue
+```python
+RedisClient(key: str, host: str, port: int)
+
+  initial_del(self) -> None:
+  push_list(self, element: list) -> Union[Awaitable[int], int]:
+  pop_list(self) -> None or list:
+  
+```
+- Clear redis queue on start
+- Push element to queue
+- Pop element from queue
+
+
+```python
+# Initialize client
+r = RedisClient(host=REDIS_HOST, port=REDIS_PORT, key=REDIS_KEY)
+
+# Delate previus data
+r.initial_del()
+
+# Push list to ram
+r.push_list([1, 2, 3, 4])
+
+# Pop list from ram
+print(r.pop_list())
+
+>>> [1, 2, 3, 4]
+```
+### Data Object
+
+Data objects are designed to make data plotting simple; each object holds its data within itself and is responsible for plotting it
+```python
+DataObject(name: str, key: int, initial_value: float)
+    update_data(self, new_data: list[float] = None) -> None:
+    
+```
+
+
+> [!WARNING]
 > Sorry, documentation is planned ...
 
 ## How does it works ?
