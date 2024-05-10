@@ -80,7 +80,8 @@ def add_to_csv(row: list, iteration: int) -> None:
 
 def validate_serial(data: str) -> bool:
     match = re.search(validate_pattern, data)
-    logger.error("Invalid serial output")
+    if not match:
+        logger.error("Invalid serial output")
     return True if match else False
 
 
