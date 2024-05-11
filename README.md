@@ -62,12 +62,60 @@ print(r.pop_list())
 ### Data Object
 
 Data objects are designed to make data plotting simple; each object holds its data within itself and is responsible for plotting it
+
 ```python
 DataObject(name: str, key: int, initial_value: float)
     update_data(self, new_data: list[float] = None) -> None:
-    
-```
 
+PlottableDataObject(DataObject):
+    update_graph(self, xdata: list) -> None:
+
+MultiPlotDataObject(
+                 ax: plt.axes,
+                 name: str,
+                 keys: list[int],
+                 xlim: list[int],
+                 ylim: list[int] = None,
+                 delta: int = 0,
+                 sources: list[str] = None,
+                 initial_values: list[float] = None,
+                 colors: list[str] = None
+                ):
+    update_y_limits():
+    update_data(self, new_data: list[float] = None) -> None:
+```
+- Update data parsing redis data
+- Update plot data
+- Calculate viewport
+  
+```python
+# Matplotlib figure    
+fig = plt.figure()
+
+# Create the axes
+temp_axes = fig.add_subplot()
+
+plt.ion()
+
+# Create the plot
+temp = MultiPlotDataObject(
+  ax=temp_axes,
+  colors=["red", "orange"],
+  initial_values=[0, 0],
+  keys=[5, 8],
+  name="Temperature",
+  sources=["Pressure", "Humidity"],
+  xlim=view_section,
+  ylim=[0, 20],
+  delta=1
+)
+
+# Update the data
+temp.update_data(new_data)
+
+# Update graph with new data
+temp.update_graph()
+```
 
 > [!WARNING]
 > Sorry, documentation is planned ...
